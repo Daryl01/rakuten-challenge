@@ -1,0 +1,6 @@
+Modèle,Modalité,Weighted F1
+TF-IDF + LinearSVC,Texte,0.8403
+Benchmark Rakuten — CNN texte,Texte,0.8113
+SBERT + MLP,Texte,0.7542
+Fusion SBERT + ResNet50,Texte + Image,0.7105
+Benchmark Rakuten — ResNet50 image,Image,0.5534

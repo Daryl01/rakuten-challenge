@@ -1,0 +1,8 @@
+Modèle,Weighted F1
+Benchmark Rakuten - Image (ResNet50),0.5534
+SBERT + LogisticRegression,0.6829
+ResNet50 Fine-tuning,0.6836
+Fusion Multimodale (SBERT + ResNet50),0.7105
+SBERT + MLP,0.7542
+Benchmark Rakuten - Texte (CNN),0.8113
+TF-IDF + LinearSVC,0.8403
