@@ -1,6 +1,6 @@
-# Projet Rakuten — Classification multimodale de produits e-commerce
+# Projet Rakuten - Classification multimodale de produits e-commerce
 
-> **Formation** : Ingénieur IA — Liora (ex DataScientest)  
+> **Formation** : Ingénieur IA - Liora (ex DataScientest)  
 > **Soutenance** : 16 octobre 2026  
 > **Auteurs** : Khoty WOLIE, [Prénom NOM 2], [Prénom NOM 3]  
 > **Mentor** : [Prénom NOM Mentor]
@@ -94,7 +94,7 @@ project_rakuten_ml_dl/
 ### Prérequis
 
 - [Anaconda](https://www.anaconda.com/) ou Miniconda
-- GPU NVIDIA avec CUDA 12.8+ (recommandé — le projet a été développé sur RTX 5070 Ti, architecture Blackwell)
+- GPU NVIDIA avec CUDA 12.8+ (recommandé - le projet a été développé sur RTX 5070 Ti, architecture Blackwell)
 - Windows 10/11 (les commandes ci-dessous sont testées sous Windows)
 
 ### Création de l'environnement
@@ -132,7 +132,7 @@ Pour reproduire les expériences :
 
 Les notebooks doivent être exécutés dans l'ordre.
 
-### `01_eda_preprocessing.ipynb` — Exploration et Preprocessing
+### `01_eda_preprocessing.ipynb` - Exploration et Preprocessing
 
 - Analyse exploratoire complète du jeu de données
 - Distribution des 27 classes (ratio déséquilibre max/min : 13,4x)
@@ -142,30 +142,30 @@ Les notebooks doivent être exécutés dans l'ordre.
 - Export de `data/processed/df_train_processed.csv`
 - Génération des figures 01 à 07 dans `reports/figures/`
 
-### `02_modeling.ipynb` — Modélisation
+### `02_modeling.ipynb` - Modélisation
 
-**Étape 1 — Baseline classique (TF-IDF + LinearSVC)**
+**Étape 1 - Baseline classique (TF-IDF + LinearSVC)**
 - Vectorisation TF-IDF avec bigrammes (`ngram_range=(1,2)`)
 - Pipeline sklearn sérialisé avec `joblib`
 - F1 pondéré : **0.8403**
 
-**Étape 2 — Représentation sémantique (SBERT + MLP)**
+**Étape 2 - Représentation sémantique (SBERT + MLP)**
 - Embeddings `paraphrase-multilingual-MiniLM-L12-v2` (384 dim)
 - MLP 3 couches avec BatchNorm et Dropout
 - F1 pondéré : 0.7542
 
-**Étape 3 — Transfer learning image (ResNet50)**
+**Étape 3 - Transfer learning image (ResNet50)**
 - Fine-tuning progressif en 2 phases (classifieur → layer4)
 - Optimiseur AdamW + OneCycleLR + label_smoothing=0.1
 - F1 pondéré : 0.6836 (+13 pts vs benchmark image Rakuten)
 
-**Étape 4 — Fusion multimodale (SBERT + ResNet50)**
+**Étape 4 - Fusion multimodale (SBERT + ResNet50)**
 - Concaténation normalisée L2 features texte (384 dim) + image (2048 dim)
 - F1 pondéré : 0.7105
 
 Génère les figures 08 à 13 dans `reports/figures/`.
 
-### `03_evaluation.ipynb` — Évaluation et Interprétabilité
+### `03_evaluation.ipynb` - Évaluation et Interprétabilité
 
 - Analyse détaillée des erreurs par classe
 - Coefficients TF-IDF équivalents SHAP (analyse tokens discriminants)
