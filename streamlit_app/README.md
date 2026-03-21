@@ -1,7 +1,7 @@
 # Application Streamlit - Projet Rakuten
 
 Classification multimodale de produits e-commerce  
-Formation Ingénieur IA — Liora | DataScientest | Soutenance 16 octobre 2026
+Formation Ingénieur IA - Liora | DataScientest | Soutenance 16 octobre 2026
 
 \---
 
@@ -75,13 +75,13 @@ mais les 4 autres onglets restent pleinement fonctionnels.
 |Contexte|Présentation du projet, données, stratégie de modélisation|
 |Exploration|Distribution des classes, langues, longueur des textes, images|
 |Modélisation|Tableau comparatif, figures des 4 modèles|
-|Classification en direct|Démo PoC — saisie libre + exemples prédéfinis|
+|Classification en direct|Démo PoC - saisie libre + exemples prédéfinis|
 |Interprétabilité|SHAP, analyse d'erreurs, chevauchement des modèles|
 
 ## Notes pour la soutenance
 
 * Le modèle n'est pas ré-entraîné au démarrage : chargement du `.pkl` uniquement.
-* L'inférence est instantanée (< 10 ms) — aucun risque de chargement long.
+* L'inférence est instantanée (< 10 ms) - aucun risque de chargement long.
 * En cas de fichiers figures manquants, l'application génère les graphiques
 dynamiquement depuis le dataset (si `df\\\_train\\\_processed.csv` est disponible).
 
