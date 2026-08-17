@@ -1,6 +1,7 @@
 # Donn‚es brutes et volumineuses
 data/raw/
 data/processed/
+data/extracted/
 *.npy
 *.h5
 *.pkl
