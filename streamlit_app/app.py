@@ -128,6 +128,27 @@ EXAMPLES = {
     ),
 }
 
+PRODUCT_EXAMPLES = {
+    "Jeu vidéo": {
+        "designation": "Dragon Warrior Monsters 2: Tara's Adventure (Version US)",
+        "code": 40,
+        "image": PROJECT_ROOT / "data" / "raw" / "image_train" / "image_1000392_product_1257596.jpg",
+        "productid": 1257596,
+    },
+    "Livre": {
+        "designation": "Télémaque - Je Ne Sais Quoi De Pur Et De Sublime",
+        "code": 10,
+        "image": PROJECT_ROOT / "data" / "raw" / "image_train" / "image_1000076039_product_580161.jpg",
+        "productid": 580161,
+    },
+    "Carte à collectionner": {
+        "designation": "Phyllali Réverse 7/111 - XY Poings Furieux",
+        "code": 1160,
+        "image": PROJECT_ROOT / "data" / "raw" / "image_train" / "image_1000093804_product_343306951.jpg",
+        "productid": 343306951,
+    },
+}
+
 DIFFICULT_CLASSES = pd.DataFrame(
     {
         "Classe": [10, 1281, 1180, 1280],
@@ -171,7 +192,8 @@ st.markdown(
     div[data-testid="stAlert"] {border-radius: 9px;}
     h1, h2, h3 {letter-spacing: -0.025em; color:var(--ink);}
     .eyebrow {color: #2457a7; font-size: .82rem; font-weight: 700;
-        letter-spacing: .08em; text-transform: uppercase;}
+        letter-spacing: .08em; text-transform: uppercase; line-height:1.55;
+        padding-top:.4rem; margin-top:.55rem; overflow:visible; position:relative;}
     .hero {color:#fff; background:linear-gradient(125deg,#10233f 0%,#245d94 68%,#2e75b6 100%);
         border-radius:18px; padding:2rem 2.2rem; margin:.8rem 0 1.4rem;
         box-shadow:0 16px 40px rgba(16,35,63,.18); position:relative; overflow:hidden;}
@@ -192,6 +214,12 @@ st.markdown(
     .section-icon {font-size:1.65rem;margin-bottom:.4rem;}
     .section-card strong {color:var(--navy);}
     .section-card small {color:var(--muted);line-height:1.45;display:block;margin-top:.25rem;}
+    .callout {background:#fff;border:1px solid var(--line);border-left:5px solid var(--coral);
+        border-radius:12px;padding:1rem 1.2rem;margin:1rem 0;box-shadow:0 5px 18px rgba(25,65,110,.05);}
+    .callout-title {color:var(--navy);font-weight:760;margin-bottom:.25rem;}
+    .callout p {color:var(--muted);margin:0;line-height:1.55;}
+    .data-chip {display:inline-block;background:var(--sky);color:#245d94;border-radius:7px;
+        padding:.28rem .55rem;margin:.18rem .15rem;font-size:.82rem;font-weight:650;}
     .active-model {background:linear-gradient(135deg,#eaf3fc,#fff);border:1px solid #bcd3eb;
         border-left:5px solid var(--blue);border-radius:13px;padding:1rem 1.2rem;margin:.8rem 0 1rem;}
     .active-model .name {font-size:1.25rem;color:var(--navy);font-weight:750;}
@@ -209,8 +237,11 @@ st.markdown(
     [data-baseweb="tab"] {font-weight:650;border-radius:8px 8px 0 0;padding:.65rem 1rem;}
     .stDataFrame {border:1px solid var(--line);border-radius:10px;overflow:hidden;}
     .muted {color: #5f6b7a;}
+    @media (max-width: 1100px) {
+        .metric-grid {grid-template-columns:repeat(2,minmax(0,1fr));}
+    }
     @media (max-width: 800px) {
-        .block-container {padding-left: 1rem; padding-right: 1rem;}
+        .block-container {padding:3rem 1rem 3rem;}
         [data-testid="column"] {min-width: 100% !important;}
         .metric-grid {grid-template-columns:repeat(2,minmax(0,1fr));}
         .flow {grid-template-columns:1fr;}
@@ -258,6 +289,7 @@ def display_figure(filename: str, caption: str) -> bool:
         st.info(f"Figure indisponible : {filename}")
         return False
     st.image(str(path), caption=caption, width="stretch")
+    st.caption("Utilisez l'icône plein écran de l'image pour une lecture détaillée sur vidéoprojecteur.")
     return True
 
 
@@ -376,6 +408,27 @@ def metric_cards(items: list[tuple[str, str, str]]) -> None:
     st.markdown(f'<div class="metric-grid">{cards}</div>', unsafe_allow_html=True)
 
 
+def render_product_examples() -> None:
+    """Présente trois images locales avec une vue détaillée agrandissable."""
+    choice = st.selectbox("Produit à examiner", list(PRODUCT_EXAMPLES), key="eda_product_choice")
+    product = PRODUCT_EXAMPLES[choice]
+    image_path = product["image"]
+    if not image_path.is_file():
+        st.info("Image locale indisponible. Aucun téléchargement externe n'est effectué.")
+        return
+    image_col, info_col = st.columns([1.45, 1])
+    with image_col:
+        st.image(str(image_path), caption=choice, width="stretch")
+    with info_col:
+        st.markdown("#### Fiche produit")
+        st.write(product["designation"])
+        st.markdown(f'**prdtypecode :** `{product["code"]}`')
+        st.markdown(f'**productid :** `{product["productid"]}`')
+        st.caption("Exemple local limité à la démonstration. L'image brute n'est pas copiée dans l'application.")
+    with st.expander("Voir l'image en grand"):
+        st.image(str(image_path), caption=f'{choice}, prdtypecode {product["code"]}', width="stretch")
+
+
 def render_home() -> None:
     st.markdown(
         '<div class="hero"><div class="hero-badge">PROJET DATA SCIENCE ET IA</div>'
@@ -393,6 +446,26 @@ def render_home() -> None:
         ]
     )
     st.success("Le modèle texte TF-IDF + LinearSVC reste le plus performant avec un F1 pondéré de 0,8316.")
+    st.markdown(
+        '<div class="callout"><div class="callout-title">Enjeu métier</div>'
+        '<p>Automatiser le catalogage améliore la qualité du catalogue, la recherche personnalisée '
+        'et la recommandation. Le défi vient du volume, du déséquilibre des catégories et de fiches '
+        'vendeurs dont les textes et les images peuvent être bruités.</p></div>',
+        unsafe_allow_html=True,
+    )
+    context_col, objective_col = st.columns(2)
+    with context_col:
+        st.markdown("#### Problématique")
+        st.write(
+            "Prédire le code `prdtypecode` d'un produit à partir de sa désignation, "
+            "de sa description facultative et de son image."
+        )
+    with objective_col:
+        st.markdown("#### Cadre d'évaluation")
+        st.write(
+            "Classification multiclasse sur 27 catégories. Le F1 pondéré tient compte "
+            "du déséquilibre des effectifs et constitue la métrique officielle."
+        )
     st.subheader("Du catalogue à la prédiction")
     st.markdown(
         '<div class="flow">'
@@ -418,9 +491,46 @@ def render_home() -> None:
             unsafe_allow_html=True,
         )
 
+    st.subheader("Données et préparation")
+    metric_cards(
+        [
+            ("Train", "84 916", "5 variables d'entrée + cible"),
+            ("Test", "13 812", "5 variables d'entrée"),
+            ("Descriptions absentes", "35,09 %", "29 800 produits"),
+            ("Images disponibles", "100 %", "RGB, 500 × 500 px"),
+        ]
+    )
+    data_col, prep_col = st.columns(2)
+    with data_col:
+        st.markdown("#### Architecture du dataset")
+        st.markdown(
+            '<span class="data-chip">designation</span><span class="data-chip">description</span>'
+            '<span class="data-chip">productid</span><span class="data-chip">imageid</span>'
+            '<span class="data-chip">prdtypecode</span>',
+            unsafe_allow_html=True,
+        )
+        st.caption(
+            "La désignation est toujours renseignée. `productid` et `imageid` permettent de relier "
+            "chaque ligne à son image. `prdtypecode` est la cible du train."
+        )
+    with prep_col:
+        st.markdown("#### Features construites")
+        st.markdown(
+            '<span class="data-chip">designation_clean</span><span class="data-chip">description_clean</span>'
+            '<span class="data-chip">text_combined</span><span class="data-chip">has_description</span>'
+            '<span class="data-chip">lang</span><span class="data-chip">image_path</span>',
+            unsafe_allow_html=True,
+        )
+        st.caption(
+            "Nettoyage, stopwords français, stemming, concaténation avec repli, longueurs textuelles "
+            "et métadonnées image préparent les données pour la modélisation."
+        )
+
     st.subheader("Exploration visuelle")
-    st.write("Trois vues synthétiques issues de l'analyse exploratoire, sans recharger le dataset complet.")
-    distribution, text, products = st.tabs(["Répartition des classes", "Texte et langues", "Produits en images"])
+    st.write("Quatre vues synthétiques issues du notebook 01, sans recharger le dataset complet.")
+    distribution, text, image_stats, products = st.tabs(
+        ["Répartition des classes", "Texte et langues", "Analyse des images", "Produits en images"]
+    )
     with distribution:
         display_figure("01_distribution_classes.png", "Distribution des 84 916 produits parmi les 27 catégories.")
         st.caption("Le déséquilibre entre catégories justifie l'utilisation du F1 pondéré.")
@@ -430,9 +540,18 @@ def render_home() -> None:
             display_figure("02_longueur_textes.png", "Longueur des désignations et descriptions.")
         with language_col:
             display_figure("03_langues_designations.png", "Langues détectées dans les désignations.")
+        st.caption(
+            "Les désignations comptent en moyenne 70 caractères. Le catalogue est surtout français "
+            "(60,92 %), mais comporte 23,03 % d'anglais, ce qui motive l'essai de SBERT multilingue."
+        )
+    with image_stats:
+        display_figure("07_dimensions_images.png", "Dimensions et surface des images produit.")
+        st.info(
+            "Toutes les images analysées sont disponibles, RGB et 500 × 500 px. "
+            "La taille et le mode ont une variance nulle : le signal utile réside dans le contenu visuel."
+        )
     with products:
-        display_figure("06_exemples_images_classes.png", "Exemples de produits issus de plusieurs catégories.")
-        st.caption("Les images apportent un signal complémentaire, mais plus variable que le texte.")
+        render_product_examples()
 
 
 def render_demo() -> None:
@@ -441,11 +560,14 @@ def render_demo() -> None:
         "Démonstration",
         "Testez le pipeline réellement sauvegardé, avec le même préprocessing que celui de l'entraînement.",
     )
+    model_status = "Chargé en mémoire" if st.session_state.get("text_model_loaded") else "Prêt à charger"
+    status_color = "#2f855a" if st.session_state.get("text_model_loaded") else "#65758b"
     st.markdown(
         '<div class="active-model"><div class="eyebrow">MODÈLE ACTIF</div>'
         '<div class="name">TF-IDF + LinearSVC</div>'
         '<div class="meta">Artefact : tfidf_linearsvc.pkl &nbsp; | &nbsp; Weighted F1 : 0,8316 '
-        '&nbsp; | &nbsp; Modalité : texte</div></div>',
+        f'&nbsp; | &nbsp; Modalité : texte &nbsp; | &nbsp; '
+        f'<strong style="color:{status_color}">Statut : {model_status}</strong></div></div>',
         unsafe_allow_html=True,
     )
     st.info(
@@ -477,6 +599,22 @@ def render_demo() -> None:
         st.image(image, caption="Aperçu de l'image chargée", width=320)
         st.caption("Image chargée pour visualisation. La prédiction principale utilise actuellement le modèle texte.")
 
+    process_col, inference_col = st.columns(2)
+    with process_col:
+        st.markdown(
+            '<div class="section-card"><div class="eyebrow">ÉTAPE 2</div>'
+            '<strong>Préprocessing identique au train</strong>'
+            '<small>Nettoyage, stopwords, stemming et construction de text_combined sont appliqués au clic.</small></div>',
+            unsafe_allow_html=True,
+        )
+    with inference_col:
+        st.markdown(
+            '<div class="section-card"><div class="eyebrow">ÉTAPE 3</div>'
+            '<strong>Inférence avec un modèle sauvegardé</strong>'
+            '<small>Le fichier tfidf_linearsvc.pkl est chargé sans aucun réentraînement.</small></div>',
+            unsafe_allow_html=True,
+        )
+
     action, reset, space = st.columns([1, 1, 3])
     predict_clicked = action.button("Prédire", type="primary", width="stretch")
     reset.button("Réinitialiser", on_click=reset_demo, width="stretch")
@@ -490,6 +628,7 @@ def render_demo() -> None:
         else:
             try:
                 model = load_text_model(str(TEXT_MODEL_PATH))
+                st.session_state["text_model_loaded"] = True
                 st.session_state["prediction_result"] = predict_text(
                     model,
                     st.session_state.get("designation", ""),
@@ -502,7 +641,8 @@ def render_demo() -> None:
     result = st.session_state.get("prediction_result")
     if result:
         st.divider()
-        st.markdown("### 2. Résultat du modèle")
+        st.markdown("### 4. Résultat du modèle")
+        st.success("Modèle chargé depuis `tfidf_linearsvc.pkl`. Prédiction effectuée sans réentraînement.")
         st.markdown(
             f'<div class="result-hero"><div class="result-label">Catégorie prédite</div>'
             f'<div class="result-name">{result["name"]}</div>'
@@ -511,9 +651,9 @@ def render_demo() -> None:
             unsafe_allow_html=True,
         )
         st.caption("Le score de décision est relatif. Il ne s'agit pas d'une probabilité calibrée.")
-        st.markdown("### 3. Top 3 des classes")
+        st.markdown("#### Top 3 des classes")
         st.dataframe(result["top3"], hide_index=True, width="stretch")
-        st.markdown("### 4. Interprétation locale")
+        st.markdown("### 5. Interprétation locale")
         st.caption(
             "Contribution additive locale au score de décision, calculée par coefficient × valeur TF-IDF, hors intercept."
         )
@@ -569,7 +709,7 @@ def render_performances() -> None:
             ("Meilleur modèle image", "0,6799", "ResNet50"),
         ]
     )
-    st.subheader("Comparaison globale")
+    st.subheader("A. Comparaison globale")
     render_performance_chart(results)
     displayed = results[results["Modèle"].isin(FALLBACK_RESULTS["Modèle"])].copy()
     st.dataframe(
@@ -585,7 +725,7 @@ def render_performances() -> None:
         unsafe_allow_html=True,
     )
 
-    st.subheader("Courbes d'apprentissage")
+    st.subheader("B. Courbes d'apprentissage")
     st.caption("Loss d'entraînement et F1 de validation au fil des époques.")
     mlp_tab, resnet_tab = st.tabs(["MLP sur embeddings SBERT", "ResNet50"])
     with mlp_tab:
@@ -608,18 +748,53 @@ def render_performances() -> None:
             "Cette évolution invite à conserver le meilleur checkpoint plutôt que la dernière époque."
         )
 
-    st.subheader("Classes difficiles")
+    st.subheader("C. Analyse du meilleur modèle")
+    analysis_left, analysis_right = st.columns(2)
+    with analysis_left:
+        st.markdown("#### Pourquoi TF-IDF + LinearSVC fonctionne bien")
+        st.markdown(
+            "- Les désignations contiennent des références, marques et termes métier très discriminants.\n"
+            "- Les unigrammes et bigrammes conservent cette précision lexicale.\n"
+            "- LinearSVC est efficace sur une matrice creuse de grande dimension.\n"
+            "- Le score atteint **0,8316**, soit **+0,0203** face au benchmark texte à 0,8113."
+        )
+    with analysis_right:
+        st.markdown("#### Forces et limites")
+        st.markdown(
+            "- Rapide, reproductible et directement utilisable pour l'inférence.\n"
+            "- Moins coûteux que les architectures profondes testées.\n"
+            "- Sensible aux titres courts, ambigus ou lexicalement proches.\n"
+            "- Quatre classes restent sous 0,70 de F1 et 16,7 % des exemples de validation sont mal classés."
+        )
+    st.info(
+        "SBERT compresse le texte dans une représentation dense plus générale. La fusion concatène "
+        "2 432 dimensions, mais l'image ajoute un signal variable et du bruit. Dans cette configuration, "
+        "la complexité supplémentaire ne compense pas la perte de précision lexicale du TF-IDF."
+    )
+
+    st.subheader("D. Classes difficiles")
     st.write("Ces quatre classes présentent un F1 inférieur à 0,70 dans l'évaluation actuelle.")
     st.dataframe(
         DIFFICULT_CLASSES.style.format({"Précision": "{:.4f}", "Rappel": "{:.4f}", "F1": "{:.4f}"}),
         hide_index=True,
         width="stretch",
     )
-    st.markdown("#### Principales confusions")
+    st.subheader("E. Principales confusions")
     st.dataframe(TOP_CONFUSIONS, hide_index=True, width="stretch")
     st.caption("Les erreurs concernent surtout des catégories lexicalement ou visuellement proches.")
-    with st.expander("Afficher la matrice de confusion complète"):
+    st.subheader("F. Matrice de confusion")
+    st.caption("La vue synthétique ci-dessus facilite la lecture. Ouvrez la matrice complète pour l'analyse détaillée.")
+    with st.expander("Afficher la matrice de confusion en grand"):
         display_figure("08_confusion_matrix_baseline.png", "Matrice de confusion du modèle texte retenu.")
+
+    st.subheader("G. Synthèse métier")
+    st.markdown(
+        '<div class="callout"><div class="callout-title">Décision proposée</div>'
+        '<p>Conserver TF-IDF + LinearSVC comme référence opérationnelle pour le catalogage automatique. '
+        'Prévoir une revue humaine ou un traitement spécialisé pour les catégories livres, presse et jeux '
+        'qui concentrent les confusions.</p></div>',
+        unsafe_allow_html=True,
+    )
 
 
 def render_contribution_example() -> None:
@@ -676,6 +851,21 @@ def render_understanding() -> None:
             "Le pipeline construit ensuite `text_concat`, puis `text_combined` avec repli sur la désignation."
         )
     st.subheader("Modèles entraînés disponibles")
+    served_col, trained_col = st.columns(2)
+    with served_col:
+        st.markdown(
+            '<div class="section-card"><div class="eyebrow">MODÈLE SERVI</div>'
+            '<strong>TF-IDF + LinearSVC</strong><small>Pipeline complet, préprocessing reproductible, '
+            'inférence locale disponible.</small></div>',
+            unsafe_allow_html=True,
+        )
+    with trained_col:
+        st.markdown(
+            '<div class="section-card"><div class="eyebrow">MODÈLES ENTRAÎNÉS</div>'
+            '<strong>SBERT, ResNet50 et fusion</strong><small>Checkpoints présents, mais chaînes complètes '
+            'non servies afin de ne pas simuler une inférence incomplète.</small></div>',
+            unsafe_allow_html=True,
+        )
     st.dataframe(artifact_status(), hide_index=True, width="stretch")
     st.caption(
         "Le tableau vérifie uniquement la présence des fichiers. Les checkpoints lourds ne sont pas chargés au démarrage."
@@ -693,6 +883,29 @@ def render_understanding() -> None:
         "- La prédiction image libre exige un paquet d'inférence reproductible avec architecture, mapping et transformations.\n"
         "- La fusion exige aussi les encodeurs, les dimensions et l'ordre exact des features.\n"
         "- L'artefact texte local fait environ 51 Mo et n'est actuellement pas suivi par Git."
+    )
+    st.subheader("Conclusion et perspectives")
+    conclusion, perspectives = st.columns(2)
+    with conclusion:
+        st.markdown("#### Ce que nous retenons")
+        st.markdown(
+            "- Le texte est le signal dominant sur ce catalogue.\n"
+            "- La précision lexicale du TF-IDF surpasse ici les représentations plus complexes.\n"
+            "- L'image complète certains cas ambigus, mais son apport moyen reste insuffisant.\n"
+            "- La fusion testée n'a pas encore trouvé le meilleur équilibre entre les modalités."
+        )
+    with perspectives:
+        st.markdown("#### Avec plus de temps")
+        st.markdown(
+            "- Calibrer les scores et définir un seuil de revue humaine.\n"
+            "- Améliorer la fusion et optimiser les embeddings.\n"
+            "- Tester data augmentation et stratégies de rééquilibrage.\n"
+            "- Empaqueter le pipeline multimodal complet.\n"
+            "- Sécuriser le téléchargement versionné des artefacts pour le Cloud."
+        )
+    st.warning(
+        "Confidentialité : les données et images brutes du challenge restent locales. "
+        "Aucune galerie publique ni copie du dataset n'est préparée pour le déploiement."
     )
 
 
