@@ -39,7 +39,6 @@ models/artifacts/resultats_comparaison.csv
 reports/figures/08_confusion_matrix_baseline.png
 reports/figures/10_learning_curve_mlp_sbert.png
 reports/figures/11_learning_curve_resnet50.png
-reports/figures/17_shap_exemple_individuel.png
 ```
 
 Les checkpoints `mlp_sbert_best.pt`, `resnet50_phase2_best.pt` et `mlp_fusion_best.pt` sont détectés
@@ -50,7 +49,8 @@ car leurs pipelines complets nécessitent des dépendances et transformations su
 
 L'application calcule une contribution additive locale au score de décision du LinearSVC avec
 `coefficient × valeur TF-IDF`, hors intercept. Cette quantité n'est pas une valeur SHAP calculée par
-un explainer.
+un explainer. La visualisation présentée dans l'application est recalculée directement avec cette
+formule et n'utilise plus l'ancienne figure statique dont les libellés étaient ambigus.
 
 ## Image facultative
 
