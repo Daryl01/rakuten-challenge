@@ -1,87 +1,73 @@
-# Application Streamlit - Projet Rakuten
+# Application Streamlit, projet Rakuten
 
-Classification multimodale de produits e-commerce  
-Formation Ingénieur IA - Liora | DataScientest | Soutenance 16 octobre 2026
+Application de démonstration pour la classification de produits e-commerce parmi 27 catégories.
+Elle présente les résultats texte, image et multimodaux. L'inférence libre utilise le meilleur
+modèle validé, TF-IDF + LinearSVC, avec un F1 pondéré de 0,8316.
 
-\---
+## Lancement local
 
-## Installation et lancement
+Depuis la racine du projet :
 
 ```bash
-# Activer l'environnement conda du projet
-conda activate rakuten\\\_env
-
-# Installer les dépendances si nécessaire
-pip install -r requirements.txt
-
-# Lancer l'application depuis la racine du projet
-streamlit run streamlit\\\_app/app.py
-
-streamlit run streamlit\_app/app.py
+conda activate rakuten_env
+pip install -r streamlit_app/requirements.txt
+streamlit run streamlit_app/app.py
 ```
 
-## Structure attendue du projet
+Le corpus français NLTK `stopwords` est téléchargé lors de la première prédiction s'il n'est pas
+déjà présent.
 
-L'application s'appuie sur les artefacts produits par les notebooks.
-Elle doit être lancée depuis la racine du projet :
+## Navigation
 
-```
-project\\\_rakuten\\\_ml\\\_dl/
-├── streamlit\\\_app/
-│   ├── app.py                  ← application principale
-│   └── requirements.txt
-├── data/
-│   ├── raw/
-│   │   ├── image\\\_train/        ← images d'entraînement (optionnel pour la démo)
-│   │   └── image\\\_test/
-│   └── processed/
-│       └── df\\\_train\\\_processed.csv
-├── models/
-│   ├── baselines/
-│   │   └── tfidf\\\_linearsvc.pkl ← REQUIS pour la démo de classification
-│   └── artifacts/
-│       └── resultats\\\_finaux\\\_03.csv
-└── reports/
-    └── figures/
-        ├── 01\\\_distribution\\\_classes.png
-        ├── 03\\\_longueur\\\_textes.png
-        ├── 05\\\_repartition\\\_langues.png
-        ├── 07\\\_taux\\\_description.png
-        ├── 08\\\_confusion\\\_matrix\\\_baseline.png
-        ├── 09\\\_f1\\\_par\\\_classe\\\_baseline.png
-        ├── 10\\\_learning\\\_curve\\\_mlp\\\_sbert.png
-        ├── 11\\\_learning\\\_curve\\\_resnet50.png
-        ├── 12\\\_comparaison\\\_modeles.png
-        ├── 13\\\_confusion\\\_matrix\\\_fusion.png
-        ├── 15\\\_confusion\\\_classes\\\_faibles.png
-        ├── 16\\\_shap\\\_tokens\\\_par\\\_classe.png
-        ├── 17\\\_shap\\\_exemple\\\_individuel.png
-        ├── 18\\\_f1\\\_par\\\_classe\\\_comparaison.png
-        ├── 19\\\_erreurs\\\_classe\\\_10.png
-        ├── 19\\\_erreurs\\\_classe\\\_1281.png
-        └── 20\\\_chevauchement\\\_erreurs.png
+- Accueil : contexte, chiffres clés et parcours du projet.
+- Démonstration : prédiction texte, Top 3, image facultative et contributions locales.
+- Performances : modèles, courbes d'apprentissage, classes difficiles et confusions.
+- Comprendre le modèle : pipeline, artefacts, interprétation et limites.
+
+## Artefacts
+
+Artefact requis pour la prédiction directe :
+
+```text
+models/baselines/tfidf_linearsvc.pkl
 ```
 
-## Fichier requis en priorité
+Fichiers utilisés pour la présentation :
 
-* `models/baselines/tfidf\\\_linearsvc.pkl` : produit par le notebook 02, section 2.7.
-Sans ce fichier, l'onglet "Classification en direct" affiche un avertissement
-mais les 4 autres onglets restent pleinement fonctionnels.
+```text
+models/artifacts/resultats_comparaison.csv
+reports/figures/08_confusion_matrix_baseline.png
+reports/figures/10_learning_curve_mlp_sbert.png
+reports/figures/11_learning_curve_resnet50.png
+reports/figures/17_shap_exemple_individuel.png
+```
 
-## Onglets de l'application
+Les checkpoints `mlp_sbert_best.pt`, `resnet50_phase2_best.pt` et `mlp_fusion_best.pt` sont détectés
+et présentés. Ils ne sont pas chargés au démarrage et ne sont pas proposés pour une inférence libre,
+car leurs pipelines complets nécessitent des dépendances et transformations supplémentaires.
 
-|Onglet|Contenu|
-|-|-|
-|Contexte|Présentation du projet, données, stratégie de modélisation|
-|Exploration|Distribution des classes, langues, longueur des textes, images|
-|Modélisation|Tableau comparatif, figures des 4 modèles|
-|Classification en direct|Démo PoC - saisie libre + exemples prédéfinis|
-|Interprétabilité|SHAP, analyse d'erreurs, chevauchement des modèles|
+## Interprétation locale
 
-## Notes pour la soutenance
+L'application calcule une contribution additive locale au score de décision du LinearSVC avec
+`coefficient × valeur TF-IDF`, hors intercept. Cette quantité n'est pas une valeur SHAP calculée par
+un explainer.
 
-* Le modèle n'est pas ré-entraîné au démarrage : chargement du `.pkl` uniquement.
-* L'inférence est instantanée (< 10 ms) - aucun risque de chargement long.
-* En cas de fichiers figures manquants, l'application génère les graphiques
-dynamiquement depuis le dataset (si `df\\\_train\\\_processed.csv` est disponible).
+## Image facultative
 
+Les fichiers JPG, JPEG et PNG jusqu'à 5 Mo peuvent être affichés dans la démonstration. L'image sert
+uniquement à la visualisation. La prédiction principale reste textuelle.
+
+## Limites et déploiement Cloud
+
+Le fichier `tfidf_linearsvc.pkl` pèse environ 51 Mo et il est actuellement ignoré par Git. Il ne sera
+donc pas présent automatiquement sur Streamlit Community Cloud. Une solution doit être choisie :
+
+1. stockage distant versionné, puis téléchargement avec contrôle du hash au démarrage ;
+2. Git LFS, si le dépôt et la plateforme le prennent en charge ;
+3. release GitHub contenant l'artefact versionné.
+
+Le téléchargement avec vérification SHA-256 est recommandé. Les versions de scikit-learn et joblib
+sont verrouillées pour limiter les incompatibilités de désérialisation.
+
+La version actuelle ne charge ni PyTorch, ni Sentence Transformers, ni les caches NumPy. Elle reste
+compatible avec une exécution CPU et une mémoire limitée, sous réserve de rendre le modèle disponible.
