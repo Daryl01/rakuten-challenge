@@ -2,8 +2,8 @@
 
 > **Formation** : Ingénieur IA - Liora (ex DataScientest)  
 > **Soutenance** : 16 octobre 2026  
-> **Auteurs** : Khoty WOLIE, [Prénom NOM 2], [Prénom NOM 3]  
-> **Mentor** : [Prénom NOM Mentor]
+> **Auteurs** : Khoty WOLIE, HaoYue Yuan, Loyck Bibissi  
+> **Mentor** : Kylian Santos
 
 ---
 
@@ -182,25 +182,25 @@ L'application permet de démontrer les capacités du système en temps réel.
 
 ### Lancement
 
+Depuis la racine du projet :
+
 ```bash
 conda activate rakuten_env
-cd project_rakuten_ml_dl
+pip install -r streamlit_app/requirements.txt
 streamlit run streamlit_app/app.py
 ```
 
-L'application est accessible sur [http://localhost:8501](http://localhost:8501).
+L'application est accessible sur [http://localhost:8501](http://localhost:8501). Les chemins sont résolus à partir de `streamlit_app/`, l'application fonctionne donc quel que soit le répertoire de lancement (le thème de `.streamlit/config.toml` n'est appliqué que depuis la racine).
 
-### Structure de l'application (5 onglets)
+### Pages
 
-| Onglet | Contenu |
-|---|---|
-| **Contexte** | Problématique, métrique, stratégie de modélisation, environnement technique |
-| **Exploration** | Statistiques descriptives, distributions, figures DataViz issues du notebook 01 |
-| **Modélisation** | Tableau comparatif des modèles, matrices de confusion, courbes d'apprentissage |
-| **Classification en direct** | Démo PoC : saisie libre ou exemples prédéfinis, prédiction instantanée, top 5 classes, tokens clés |
-| **Interprétabilité** | Coefficients discriminants, analyse des erreurs, comparaison inter-modèles |
+| Section | Page | Contenu |
+|---|---|---|
+| Projet | Accueil, Données, Modélisation | Problème et enjeu, volumétrie et prétraitement interactif, comparaison des quatre approches |
+| Démonstration | Prédiction en direct, Analyse du modèle | PoC avec exemples réels, top 5 et mots décisifs ; F1 par classe, confusions, termes discriminants |
+| Synthèse | Conclusion, Équipe | Décision, limites, perspectives ; membres du groupe et mentor |
 
-> Le modèle est chargé une seule fois en mémoire via `st.cache_resource`. Aucun réentraînement n'a lieu pendant la démonstration.
+Seul `models/baselines/tfidf_linearsvc.pkl` est chargé, une seule fois par processus (`st.cache_resource`). Aucun réentraînement n'a lieu. Voir `streamlit_app/README.md` pour le déploiement.
 
 ---
 

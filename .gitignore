@@ -20,3 +20,9 @@ mlruns/
 # OS
 .DS_Store
 Thumbs.db
+
+# Modele servi par Streamlit (49 Mio, sous la limite GitHub de 100 Mio) : seule exception a *.pkl
+!models/baselines/tfidf_linearsvc.pkl
+# Archive locale volumineuse (5,5 Go) et secrets Streamlit
+models.zip
+.streamlit/secrets.toml

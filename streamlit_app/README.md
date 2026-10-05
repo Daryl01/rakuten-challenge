@@ -1,8 +1,7 @@
 # Application Streamlit, projet Rakuten
 
-Application de démonstration pour la classification de produits e-commerce parmi 27 catégories.
-Elle présente les résultats texte, image et multimodaux. L'inférence libre utilise le meilleur
-modèle validé, TF-IDF + LinearSVC, avec un F1 pondéré de 0,8316.
+Application de soutenance : présentation du projet et démonstration (PoC) de classification de produits
+parmi 27 catégories avec le modèle validé **TF-IDF + LinearSVC** (F1 pondéré de validation 0,8316).
 
 ## Lancement local
 
@@ -14,60 +13,51 @@ pip install -r streamlit_app/requirements.txt
 streamlit run streamlit_app/app.py
 ```
 
-Le corpus français NLTK `stopwords` est téléchargé lors de la première prédiction s'il n'est pas
-déjà présent.
+Le corpus NLTK `stopwords` est téléchargé au premier chargement du modèle s'il est absent.
 
-## Navigation
+## Structure
 
-- Accueil : contexte, chiffres clés et parcours du projet.
-- Démonstration : prédiction texte, Top 3, image facultative et contributions locales.
-- Performances : modèles, courbes d'apprentissage, classes difficiles et confusions.
-- Comprendre le modèle : pipeline, artefacts, interprétation et limites.
+```text
+streamlit_app/
+├── app.py                 # point d'entrée : configuration, navigation, barre latérale
+├── core/
+│   ├── paths.py           # chemins absolus, indépendants du répertoire de lancement
+│   ├── content.py         # scores validés, libellés, équipe, chargement des CSV
+│   ├── model_service.py   # chargement contrôlé du modèle et prédiction
+│   └── ui.py              # styles et composants partagés
+├── views/                 # une page par fichier
+├── data/                  # agrégats par classe recalculés avec le modèle servi
+└── requirements.txt       # dépendances figées utilisées en production
+```
+
+Le prétraitement est importé depuis `src/text_preprocessing.py`, identique à celui du notebook 01.
 
 ## Artefacts
 
-Artefact requis pour la prédiction directe :
+| Fichier | Rôle | Obligatoire |
+|---|---|---|
+| `models/baselines/tfidf_linearsvc.pkl` | Pipeline TF-IDF + LinearSVC servi (51 357 216 octets, SHA-256 `35ec63de…07e750cc`) | Oui, pour la prédiction |
+| `models/artifacts/resultats_comparaison.csv` | Scores F1 de tous les modèles | Oui, page Modélisation |
+| `streamlit_app/data/*.csv` | F1 par classe, effectifs, principales confusions | Oui, pages Données et Analyse |
+| `reports/figures/*.png` | Figures des notebooks | Non, un message remplace une figure absente |
 
-```text
-models/baselines/tfidf_linearsvc.pkl
-```
+Les checkpoints SBERT, ResNet50 et fusion ne sont pas chargés : leur chaîne d'inférence complète
+(encodeurs, transformations, ordre des features) n'est pas empaquetée.
 
-Fichiers utilisés pour la présentation :
+Si le modèle est absent, illisible, remplacé par un pointeur Git LFS ou incompatible avec la version de
+scikit-learn, l'application affiche la cause et la marche à suivre. Elle ne produit jamais de prédiction
+de remplacement. La variable d'environnement `RAKUTEN_MODEL_PATH` permet de pointer vers un autre emplacement.
 
-```text
-models/artifacts/resultats_comparaison.csv
-reports/figures/08_confusion_matrix_baseline.png
-reports/figures/10_learning_curve_mlp_sbert.png
-reports/figures/11_learning_curve_resnet50.png
-```
+## Déploiement sur Streamlit Community Cloud
 
-Les checkpoints `mlp_sbert_best.pt`, `resnet50_phase2_best.pt` et `mlp_fusion_best.pt` sont détectés
-et présentés. Ils ne sont pas chargés au démarrage et ne sont pas proposés pour une inférence libre,
-car leurs pipelines complets nécessitent des dépendances et transformations supplémentaires.
+- Fichier principal : `streamlit_app/app.py`.
+- Dépendances : `streamlit_app/requirements.txt`. Community Cloud lit en priorité le fichier situé dans le
+  dossier du point d'entrée, ce qui évite le `requirements.txt` racine (PyTorch nightly CUDA, non installable).
+- Python : 3.10 si proposé (version locale), sinon 3.11 ou 3.12. Les versions figées ne supportent pas 3.14.
+- Le modèle doit être publié dans le dépôt : il est exclu par `*.pkl`, une exception dédiée figure dans `.gitignore`.
 
 ## Interprétation locale
 
-L'application calcule une contribution additive locale au score de décision du LinearSVC avec
-`coefficient × valeur TF-IDF`, hors intercept. Cette quantité n'est pas une valeur SHAP calculée par
-un explainer. La visualisation présentée dans l'application est recalculée directement avec cette
-formule et n'utilise plus l'ancienne figure statique dont les libellés étaient ambigus.
-
-## Image facultative
-
-Les fichiers JPG, JPEG et PNG jusqu'à 5 Mo peuvent être affichés dans la démonstration. L'image sert
-uniquement à la visualisation. La prédiction principale reste textuelle.
-
-## Limites et déploiement Cloud
-
-Le fichier `tfidf_linearsvc.pkl` pèse environ 51 Mo et il est actuellement ignoré par Git. Il ne sera
-donc pas présent automatiquement sur Streamlit Community Cloud. Une solution doit être choisie :
-
-1. stockage distant versionné, puis téléchargement avec contrôle du hash au démarrage ;
-2. Git LFS, si le dépôt et la plateforme le prennent en charge ;
-3. release GitHub contenant l'artefact versionné.
-
-Le téléchargement avec vérification SHA-256 est recommandé. Les versions de scikit-learn et joblib
-sont verrouillées pour limiter les incompatibilités de désérialisation.
-
-La version actuelle ne charge ni PyTorch, ni Sentence Transformers, ni les caches NumPy. Elle reste
-compatible avec une exécution CPU et une mémoire limitée, sous réserve de rendre le modèle disponible.
+La contribution affichée vaut `coefficient × valeur TF-IDF` pour la classe prédite, hors intercept. C'est une
+lecture exacte du modèle linéaire, pas une valeur SHAP. Les scores de décision LinearSVC ne sont pas des
+probabilités : aucun pourcentage de confiance n'est affiché.

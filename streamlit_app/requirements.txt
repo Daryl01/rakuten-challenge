@@ -1,8 +1,11 @@
+# Dépendances de l'application Streamlit (utilisées par Streamlit Community Cloud).
+# scikit-learn, numpy et scipy sont figés sur les versions qui ont sérialisé
+# models/baselines/tfidf_linearsvc.pkl : ne pas les mettre à jour sans re-sérialiser le modèle.
 streamlit==1.55.0
+altair==6.0.0
 pandas==2.3.3
 numpy==2.2.6
-matplotlib==3.10.8
+scipy==1.15.3
 scikit-learn==1.7.2
 joblib==1.5.3
-Pillow==12.1.1
 nltk==3.9.3
